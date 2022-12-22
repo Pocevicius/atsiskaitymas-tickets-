@@ -1,6 +1,3 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const auth = require("../middleware/auth");
 const ticketsSchema = require("../model/tickets");
 const usersSchema = require("../model/users");
 const ObjectId = require("mongoose").Types.ObjectId;
@@ -36,7 +33,7 @@ module.exports.BUY_TICKET = async (req, res) => {
         { _id: req.body.id },
         {
           moneyBalance: balanceAfterPurchase,
-          $push: { ticketsBought: ticket._id },
+          $push: { boughtTickets: ticket._id },
         }
       )
       .exec()
@@ -49,4 +46,41 @@ module.exports.BUY_TICKET = async (req, res) => {
   } else {
     return res.status(400).json({ statusMessage: "Ticket purchase failed" });
   }
+};
+module.exports.GET_USER_BY_ID_WITH_TICKETS = async (req, res) => {
+  const data = await usersSchema
+    .aggregate([
+      {
+        $lookup: {
+          from: "tickets",
+          localField: "boughtTickets",
+          foreignField: "_id",
+          as: "userTickets",
+        },
+      },
+      { $match: { _id: ObjectId(req.params.id) } },
+    ])
+    .exec();
+
+  console.log(data);
+
+  return res.status(200).json({ userWithTickets: data });
+};
+module.exports.GET_ALL_USERS_WITH_TICKETS = async (req, res) => {
+  const data = await usersSchema
+    .aggregate([
+      {
+        $lookup: {
+          from: "tickets",
+          localField: "boughtTickets",
+          foreignField: "_id",
+          as: "userWithTickets",
+        },
+      },
+    ])
+    .exec();
+
+  console.log(data);
+
+  return res.status(200).json({ usersWithTickets: data });
 };

@@ -13,10 +13,10 @@ router.post("/signUp", SIGN_UP);
 
 router.post("/login", LOGIN);
 
-router.get("/getNewJwtToken", GET_NEW_JWT_TOKEN);
+router.get("/getNewJwtToken", auth, GET_NEW_JWT_TOKEN);
 
-router.get("/getAllUsers", GET_ALL_USERS);
+router.get("/getAllUsers", auth, GET_ALL_USERS);
 
-router.get("/getUserById/:id", GET_USER_BY_ID);
+router.get("/getUserById/:id", auth, GET_USER_BY_ID);
 
 module.exports = router;
